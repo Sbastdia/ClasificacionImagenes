@@ -38,7 +38,7 @@ LARGO_IMAGEN = 28
 ANCHO_IMAGEN = 28
 
 #Carga de los datos de entrenamiento
-observaciones_entrenamiento = pnd.read_csv('datas/zalando/fashion-mnist_train.csv')
+observaciones_entrenamiento = pnd.read_csv('código cap12/datas/zalando/fashion-mnist_train.csv')
 
 #Solo se guardan las características "píxeles"
 X = np.array(observaciones_entrenamiento.iloc[:, 1:])
@@ -62,7 +62,7 @@ X_validacion = X_validacion.astype('float32')
 X_validacion /= 255
 
 #Preparación de los datos de prueba
-observaciones_test = pnd.read_csv('datas/zalando/fashion-mnist_test.csv')
+observaciones_test = pnd.read_csv('código cap12/datas/zalando/fashion-mnist_test.csv')
 
 X_test = np.array(observaciones_test.iloc[:, 1:])
 y_test = to_categorical(np.array(observaciones_test.iloc[:, 0]))
@@ -109,16 +109,16 @@ redNeurona1Convolucion.add(Dense(10, activation='softmax'))
 #8 - Compilación del modelo
 import keras
 redNeurona1Convolucion.compile(loss=keras.losses.categorical_crossentropy,
-                                  optimizer=keras.optimizers.Adam(),
-                                   metrics=['accuracy'])
+                                    optimizer=keras.optimizers.Adam(),
+                                    metrics=['accuracy'])
 
 
 #9 - Aprendizaje
 historico_aprendizaje  = redNeurona1Convolucion.fit(X_aprendizaje, y_aprendizaje,
-           batch_size=256,
-           epochs=10,
-           verbose=1,
-           validation_data=(X_validacion, y_validacion))
+            batch_size=256,
+            epochs=10,
+            verbose=1,
+            validation_data=(X_validacion, y_validacion))
 
 
 #10 - Evaluación del modelo

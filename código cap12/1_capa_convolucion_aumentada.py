@@ -38,7 +38,7 @@ LARGO_IMAGEN = 28
 ANCHO_IMAGEN = 28
 
 #Carga de los datos de entrenamiento
-observaciones_entrenamiento = pnd.read_csv('datas/zalando/fashion-mnist_train.csv')
+observaciones_entrenamiento = pnd.read_csv('código cap12/datas/zalando/fashion-mnist_train.csv')
 
 #Solo se guardan las características "píxeles"
 X = np.array(observaciones_entrenamiento.iloc[:, 1:])
@@ -62,7 +62,7 @@ X_validacion = X_validacion.astype('float32')
 X_validacion /= 255
 
 #Preparación de los datos de prueba
-observaciones_test = pnd.read_csv('datas/zalando/fashion-mnist_test.csv')
+observaciones_test = pnd.read_csv('código cap12/datas/zalando/fashion-mnist_test.csv')
 
 X_test = np.array(observaciones_test.iloc[:, 1:])
 y_test = to_categorical(np.array(observaciones_test.iloc[:, 0]))
@@ -107,17 +107,17 @@ redNeurona1Convolucion.add(Dense(10, activation='softmax'))
 #8 - Compilación del modelo
 import keras
 redNeurona1Convolucion.compile(loss=keras.losses.categorical_crossentropy,
-                                  optimizer=keras.optimizers.Adam(),
-                                   metrics=['accuracy'])
+                                    optimizer=keras.optimizers.Adam(),
+                                    metrics=['accuracy'])
 
 
 #9 - Aumento de la cantidad de imágenes
 from keras.preprocessing.image import ImageDataGenerator
 generador_imagenes = ImageDataGenerator(rotation_range=8,
-                         width_shift_range=0.08,
-                         shear_range=0.3,
-                         height_shift_range=0.08,
-                         zoom_range=0.08)
+                            width_shift_range=0.08,
+                            shear_range=0.3,
+                            height_shift_range=0.08,
+                            zoom_range=0.08)
 
 
 nuevas_imagenes_aprendizaje = generador_imagenes.flow(X_aprendizaje, y_aprendizaje, batch_size=256)
@@ -126,12 +126,12 @@ nuevas_imagenes_validacion = generador_imagenes.flow(X_validacion, y_validacion,
 
 #10 - Aprendizaje
 historico_aprendizaje = redNeurona1Convolucion.fit_generator(nuevas_imagenes_aprendizaje,
-                                                   steps_per_epoch=48000//256,
-                                                   epochs=50,
-                                                   validation_data=nuevas_imagenes_validacion,
-                                                   validation_steps=12000//256,
-                                                   use_multiprocessing=False,
-                                                   verbose=1 )
+                                                    steps_per_epoch=48000//256,
+                                                    epochs=50,
+                                                    validation_data=nuevas_imagenes_validacion,
+                                                    validation_steps=12000//256,
+                                                    use_multiprocessing=False,
+                                                    verbose=1 )
 
 
 
