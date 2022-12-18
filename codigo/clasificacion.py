@@ -26,7 +26,7 @@
 
 
 #Carga de la descripción del modelo
-archivo_json = open('código cap12/modelo/modelo_4convoluciones.json', 'r')
+archivo_json = open('codigo/modelo/modelo_4convoluciones.json', 'r')
 modelo_json = archivo_json.read()
 archivo_json.close()
 
@@ -34,7 +34,7 @@ archivo_json.close()
 from keras.models import model_from_json
 modelo = model_from_json(modelo_json)
 # Cargar pesos en el modelo nuevo
-modelo.load_weights("código cap12/modelo/modelo_4convoluciones.h5")
+modelo.load_weights("codigo/modelo/modelo_4convoluciones.h5")
 
 
 #Definición de las categorías de clasificación
@@ -47,7 +47,7 @@ clases = ["Una camiseta/top","Un pantalón","Un jersey","Un vestido","Un abrigo"
 from PIL import Image, ImageFilter
 
 #Carga de la imagen
-imagen = Image.open("código cap12/imagenes/zapatilla.jpg").convert('L')
+imagen = Image.open("codigo/imagenes/zapatilla.jpg").convert('L')
 
 #Dimensión de la imagen
 largo = float(imagen.size[0])

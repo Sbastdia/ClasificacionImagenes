@@ -45,7 +45,7 @@ class ConvolucionAumentada4:
         self.ANCHO_IMAGEN = 28
 
 #Carga de los datos de entrenamiento
-        self.observaciones_entrenamiento = pnd.read_csv('código cap12/datas/zalando/fashion-mnist_train.csv')
+        self.observaciones_entrenamiento = pnd.read_csv('codigo/datas/zalando/fashion-mnist_train.csv')
 
 #Solo se guardan las características "píxeles"
     def pixel(self):
@@ -74,7 +74,7 @@ class ConvolucionAumentada4:
 #Hasta aquí el entrenamiento, ahora se hace la prueba
     def datosPrueba(self):
         #Preparación de los datos de prueba
-        self.observaciones_test = pnd.read_csv('código cap12/datas/zalando/fashion-mnist_test.csv')
+        self.observaciones_test = pnd.read_csv('codigo/datas/zalando/fashion-mnist_test.csv')
 
         self.X_test = np.array(self.observaciones_test.iloc[:, 1:])
         self.y_test = to_categorical(np.array(self.observaciones_test.iloc[:, 0]))

@@ -1,0 +1,3 @@
+from codigo.capa_1_convolucion import UnaCapaConvolucion
+from codigo.capa_1_convolucion_aumentada import UnaCapaConvolucionAumentada
+from codigo.capas_4_convolucion_aumentada import ConvolucionAumentada

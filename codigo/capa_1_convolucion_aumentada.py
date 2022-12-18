@@ -7,7 +7,7 @@
 # Módulos necesarios:
 #   PANDAS 0.24.2
 #   KERAS 2.2.4
-#   PILOW 6.0.0
+#   PILLOW 6.0.0
 #   SCIKIT-LEARN 0.20.3
 #   NUMPY 1.16.3
 #   MATPLOTLIB : 3.0.3
@@ -21,12 +21,12 @@
 
 
 
-#************************************************************************************
-#
-# REDES NEURONALES CONVOLUCIONALES CON 1 CAPA DE CONVOLUCIONES
-#
-#************************************************************************************
 
+#************************************************************************************
+#
+# REDES NEURONALES CON 1 CAPA DE CONVOLUCIONES Y UNA CANTIDAD DE IMAGENES AUMENTADA
+#
+#************************************************************************************
 
 import pandas as pnd
 import numpy as np
@@ -36,21 +36,21 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 import keras
+from keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 
+class UnaCapaConvolucionAumentada:
 
-class UnaCapaConvolucion:
 
     def __init__(self):
         #Carga de los datos de entrenamiento
-        self.observaciones_entrenamiento = pnd.read_csv('código cap12/datas/zalando/fashion-mnist_train.csv')
-        #Solo se guardan las características "píxeles"
+        self.observaciones_entrenamiento = pnd.read_csv('codigo/datas/zalando/fashion-mnist_train.csv')
         self.X = np.array(self.observaciones_entrenamiento.iloc[:, 1:])
-        #Se crea una tabla de categorías con la ayuda del módulo Keras
+        #Se crea una tabla de categorías con ayuda del módulo Keras
         self.y = to_categorical(np.array(self.observaciones_entrenamiento.iloc[:, 0]))
 
+    #Definición del largo y ancho de la imagen
     def imagen(self):
-        #Definición de largo y ancho de la imagen
         self.LARGO_IMAGEN = 28
         self.ANCHO_IMAGEN = 28
 
@@ -72,7 +72,7 @@ class UnaCapaConvolucion:
 
     def preparacionDatosTest(self):
         #Preparación de los datos de prueba
-        self.observaciones_test = pnd.read_csv('código cap12/datas/zalando/fashion-mnist_test.csv')
+        self.observaciones_test = pnd.read_csv('codigo/datas/zalando/fashion-mnist_test.csv')
 
         self.X_test = np.array(self.observaciones_test.iloc[:, 1:])
         self.y_test = to_categorical(np.array(self.observaciones_test.iloc[:, 0]))
@@ -81,9 +81,8 @@ class UnaCapaConvolucion:
         self.X_test = self.X_test.astype('float32')
         self.X_test /= 255
 
-        #----------------------- CNN 1 ------------------------
 
-    def dimensionImagen(self):
+    def dimensionEntrada(self):
         #Se especifican las dimensiones de la imagen de entrada
         self.dimensionImagen = (self.ANCHO_IMAGEN, self.LARGO_IMAGEN, 1)
 
@@ -92,7 +91,7 @@ class UnaCapaConvolucion:
         self.redNeurona1Convolucion = Sequential()
 
         #1- Adición de la capa de convolución que contiene
-        #  Capa coculta de 32 neuronas
+        #  Capa oculta de 32 neuronas
         #  Un filtro de 3x3 (Kernel) recorriendo la imagen
         #  Una función de activación de tipo ReLU (Rectified Linear Activation)
         #  Una imagen de entrada de 28px * 28 px
@@ -120,26 +119,40 @@ class UnaCapaConvolucion:
                                             metrics=['accuracy'])
 
 
+        #9 - Aumento de la cantidad de imágenes
+
+        self.generador_imagenes = ImageDataGenerator(rotation_range=8,
+                                    width_shift_range=0.08,
+                                    shear_range=0.3,
+                                    height_shift_range=0.08,
+                                    zoom_range=0.08)
+
+
+        self.nuevas_imagenes_aprendizaje = self.generador_imagenes.flow(self.X_aprendizaje, self.y_aprendizaje, batch_size=256)
+        self.nuevas_imagenes_validacion = self.generador_imagenes.flow(self.X_validacion, self.y_validacion, batch_size=256)
+
     def aprendizaje(self):
-        #9 - Aprendizaje
-        self.historico_aprendizaje  = self.redNeurona1Convolucion.fit(self.X_aprendizaje, self.y_aprendizaje,
-                    batch_size=256,
-                    epochs=10,
-                    verbose=1,
-                    validation_data=(self.X_validacion, self.y_validacion))
+        #10 - Aprendizaje
+        self.historico_aprendizaje = self.redNeurona1Convolucion.fit_generator(self.nuevas_imagenes_aprendizaje,
+                                                            steps_per_epoch=48000//256,
+                                                            epochs=50,
+                                                            validation_data=self.nuevas_imagenes_validacion,
+                                                            validation_steps=12000//256,
+                                                            use_multiprocessing=False,
+                                                            verbose=1 )
+
 
     def evaluacion(self):
-        #10 - Evaluación del modelo
+        #11 - Evaluación del modelo
         self.evaluacion = self.redNeurona1Convolucion.evaluate(self.X_test, self.y_test, verbose=0)
         print('Error:', self.evaluacion[0])
         print('Precisión:', self.evaluacion[1])
 
 
-
-    #11 - Visualización de la fase de aprendizaje
-
+    #12 - Visualización de la fase de aprendizaje
     def visualizacion(self):
-        #Datos de precisión (accurary)
+
+        #Datos de precisión (accuracy)
         plt.plot(self.historico_aprendizaje.history['accuracy'])
         plt.plot(self.historico_aprendizaje.history['val_accuracy'])
         plt.title('Precisión del modelo')
@@ -157,20 +170,48 @@ class UnaCapaConvolucion:
         plt.legend(['Aprendizaje', 'Test'], loc='upper left')
         plt.show()
 
+    def guardarModelo(self):
+        #Guardado del modelo
+        # serializar modelo a JSON
+        self.modelo_json = self.redNeurona1Convolucion.to_json()
+        with open("modelo/modelo.json", "w") as json_file:
+            json_file.write(self.modelo_json)
+
+    def serializarPesos(self):
+        # serializar pesos a HDF5
+        self.redNeurona1Convolucion.save_weights("modelo/modelo.h5")
+        print("¡Modelo guardado!")
+
+
+
     @staticmethod
     def ejecutar():
-        redNeuronal = UnaCapaConvolucion()
+        #Se crea un objeto de la clase RedNeuronal
+        redNeuronal = UnaCapaConvolucionAumentada()
+
         redNeuronal.imagen()
+
         redNeuronal.distribucionDatos()
+
         redNeuronal.preparacionDatos()
+
         redNeuronal.preparacionDatosTest()
-        redNeuronal.dimensionImagen()
+
+        #Se llama al método que especifica las dimensiones de la imagen de entrada
+        redNeuronal.dimensionEntrada()
+
+        #Se llama al método que crea la red neuronal
         redNeuronal.redNeuronal()
-        redNeuronal.aprendizaje()
-        redNeuronal.evaluacion()
+
+        #Se llama al método que visualiza la fase de aprendizaje
         redNeuronal.visualizacion()
 
-if __name__ == '__main__':
-    redNeuronal = UnaCapaConvolucion()
-    redNeuronal.ejecutar()
+        #Se llama al método que guarda el modelo
+        redNeuronal.guardarModelo()
 
+        #Se llama al método que serializa los pesos
+        redNeuronal.serializarPesos()
+
+if __name__ == '__main__':
+    redNeuronal = UnaCapaConvolucionAumentada()
+    redNeuronal.ejecutar()
