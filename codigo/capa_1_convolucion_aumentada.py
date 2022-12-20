@@ -174,12 +174,12 @@ class UnaCapaConvolucionAumentada:
         #Guardado del modelo
         # serializar modelo a JSON
         self.modelo_json = self.redNeurona1Convolucion.to_json()
-        with open("modelo/modelo.json", "w") as json_file:
+        with open("codigo/modelo/modelo.json", "w") as json_file:
             json_file.write(self.modelo_json)
 
     def serializarPesos(self):
         # serializar pesos a HDF5
-        self.redNeurona1Convolucion.save_weights("modelo/modelo.h5")
+        self.redNeurona1Convolucion.save_weights("codigo/modelo/modelo.h5")
         print("¡Modelo guardado!")
 
 
@@ -203,6 +203,8 @@ class UnaCapaConvolucionAumentada:
         #Se llama al método que crea la red neuronal
         redNeuronal.redNeuronal()
 
+        redNeuronal.aprendizaje()
+
         #Se llama al método que visualiza la fase de aprendizaje
         redNeuronal.visualizacion()
 
@@ -213,5 +215,4 @@ class UnaCapaConvolucionAumentada:
         redNeuronal.serializarPesos()
 
 if __name__ == '__main__':
-    redNeuronal = UnaCapaConvolucionAumentada()
-    redNeuronal.ejecutar()
+    UnaCapaConvolucionAumentada.ejecutar()

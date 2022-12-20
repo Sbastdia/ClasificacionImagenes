@@ -171,6 +171,5 @@ class UnaCapaConvolucion:
         redNeuronal.visualizacion()
 
 if __name__ == '__main__':
-    redNeuronal = UnaCapaConvolucion()
-    redNeuronal.ejecutar()
+    UnaCapaConvolucion.ejecutar()
 

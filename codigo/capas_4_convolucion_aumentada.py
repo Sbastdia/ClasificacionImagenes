@@ -48,31 +48,31 @@ class ConvolucionAumentada4:
         self.observaciones_entrenamiento = pnd.read_csv('codigo/datas/zalando/fashion-mnist_train.csv')
 
 #Solo se guardan las características "píxeles"
-    def pixel(self):
+    def Pixel(self):
         self.X = np.array(self.observaciones_entrenamiento.iloc[:, 1:])
 
         #Se crea una tabla de categorías con la ayuda del módulo Keras
-    def tabla(self):
+    def Tabla(self):
         self.y = to_categorical(np.array(self.observaciones_entrenamiento.iloc[:, 0]))
 
         #Distribución de los datos de entrenamiento en datos de aprendizaje y datos de validación
         #80 % de datos de aprendizaje y 20 % de datos de validación
-    def datosAprendizaje(self):
+    def DatosAprendizaje(self):
         self.X_aprendizaje, self.X_validacion, self.y_aprendizaje, self.y_validacion = train_test_split(self.X, self.y, test_size=0.2, random_state=13)
 
-    def redimensionApr(self):
+    def RedimensionApr(self):
         #Se redimensionan las imágenes al formato 28*28 y se realiza una adaptación de escala en los datos de los píxeles
         self.X_aprendizaje = self.X_aprendizaje.reshape(self.X_aprendizaje.shape[0], self.ANCHO_IMAGEN, self.LARGO_IMAGEN, 1)
         self.X_aprendizaje = self.X_aprendizaje.astype('float32')
         self.X_aprendizaje /= 255
 
-    def redimensionVal(self):
+    def RedimensionVal(self):
         #Se hace lo mismo con los datos de validación
         self.X_validacion = self.X_validacion.reshape(self.X_validacion.shape[0], self.ANCHO_IMAGEN, self.LARGO_IMAGEN, 1)
         self.X_validacion = self.X_validacion.astype('float32')
         self.X_validacion /= 255
 #Hasta aquí el entrenamiento, ahora se hace la prueba
-    def datosPrueba(self):
+    def DatosPrueba(self):
         #Preparación de los datos de prueba
         self.observaciones_test = pnd.read_csv('codigo/datas/zalando/fashion-mnist_test.csv')
 
@@ -86,7 +86,7 @@ class ConvolucionAumentada4:
         self.dimensionImagen = (self.ANCHO_IMAGEN, self.LARGO_IMAGEN, 1)
 
 #Se crea la red neuronal capa por capa
-    def redNeuronal(self):
+    def RedNeuronal(self):
         self.redNeuronas4Convolucion = Sequential()
         self.redNeuronas4Convolucion.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=self.dimensionImagen))
         self.redNeuronas4Convolucion.add(BatchNormalization())
@@ -132,7 +132,9 @@ class ConvolucionAumentada4:
 
     def Aprendizaje(self):
         #10 - Aprendizaje
-        start = time.clock();
+        #start = time.clock(); no funciona para python 3.8 en adelante
+        start = time.process_time();
+        #si no funciona fit_generator, usar fit, ya que va a dejar de funcionar en el futuro
         self.historico_aprendizaje = self.redNeuronas4Convolucion.fit_generator(self.nuevas_imagenes_aprendizaje,
                                                     steps_per_epoch=48000//256,
                                                     epochs=50,
@@ -140,7 +142,7 @@ class ConvolucionAumentada4:
                                                     validation_steps=12000//256,
                                                     use_multiprocessing=False,
                                                     verbose=1 )
-        stop = time.clock();
+        stop = time.process_time();
         print("Tiempo de aprendizaje = "+str(stop-start))
 
     def Evaluacion(self):
@@ -172,35 +174,35 @@ class ConvolucionAumentada4:
         #Guardado del modelo
         # serializar modelo a JSON
         modelo_json = self.redNeuronas4Convolucion.to_json()
-        with open("modelo/modelo_4convoluciones.json", "w") as json_file:
+        with open("codigo/modelo/modelo_4convoluciones.json", "w") as json_file:
             json_file.write(modelo_json)
 
         # serializar pesos a HDF5
-        self.redNeuronas4Convolucion.save_weights("modelo/modelo_4convoluciones.h5")
+        self.redNeuronas4Convolucion.save_weights("codigo/modelo/modelo_4convoluciones.h5")
         print("¡Modelo guardado!")
-    def Train(self):
-        self.pixel()
-        self.tabla()
-        self.datosAprendizaje()
-        self.redimensionApr()
-        self.redimensionVal()
-    def Test(self):
-        self.datosPrueba()
-        self.redNeuronal()
+    def train(self):
+        self.Pixel()
+        self.Tabla()
+        self.DatosAprendizaje()
+        self.RedimensionApr()
+        self.RedimensionVal()
+    def test(self):
+        self.DatosPrueba()
+        self.RedNeuronal()
         self.Modelo()
         self.Imagenes()
         self.Aprendizaje()
         self.Evaluacion()
-    def Visualizacion(self):
+    def visualizacion(self):
         self.Precision()
         self.ValidacionyError()
     @staticmethod
-    def Ejecutar():
+    def ejecutar():
         modelo = ConvolucionAumentada4()
-        modelo.Train()
-        modelo.Test()
-        modelo.Visualizacion()
+        modelo.train()
+        modelo.test()
+        modelo.visualizacion()
         modelo.SaveModel()
 
 if __name__ == '__main__':
-    ConvolucionAumentada4.Ejecutar()
+    ConvolucionAumentada4.ejecutar()
